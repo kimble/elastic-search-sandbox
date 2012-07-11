@@ -1,5 +1,6 @@
 package com.developerb.elasticsearch.test;
 
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -11,6 +12,7 @@ import org.junit.runners.model.Statement;
 import java.io.File;
 import java.util.UUID;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static junit.framework.Assert.assertTrue;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
@@ -30,6 +32,17 @@ public class ElasticSearchRule implements TestRule {
 
     public Client client() {
         return node.client();
+    }
+
+    /**
+     * Useful to combat the "near real time" aspect of Elastic Search during testing.
+     * @param indices to refresh
+     */
+    public void refreshIndices(String... indices) {
+        client().admin()
+                .indices()
+                .refresh(new RefreshRequest(indices))
+                .actionGet(3, SECONDS);
     }
 
     private class ElasticStatement extends Statement {
