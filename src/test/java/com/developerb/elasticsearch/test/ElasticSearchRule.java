@@ -58,13 +58,8 @@ public class ElasticSearchRule implements TestRule {
             File testFolder = createTemporaryTestFolder();
 
             try {
-                Settings settings = ImmutableSettings.settingsBuilder()
-                        .put("path.data", new File(testFolder, "data").getAbsolutePath())
-                        .put("path.logs", new File(testFolder, "logs").getAbsolutePath())
-                        .build();
-
                 node = nodeBuilder()
-                        .settings(settings)
+                        .settings(buildSettings(testFolder))
                         .local(true)
                         .node();
 
@@ -80,14 +75,21 @@ public class ElasticSearchRule implements TestRule {
             }
         }
 
-    }
+        private File createTemporaryTestFolder() {
+            File temporaryFolder = new File(System.getProperty("java.io.tmpdir"));
+            File testFolder = new File(temporaryFolder, UUID.randomUUID().toString());
 
-    private File createTemporaryTestFolder() {
-        File temporaryFolder = new File(System.getProperty("java.io.tmpdir"));
-        File testFolder = new File(temporaryFolder, UUID.randomUUID().toString());
+            assertTrue("Unable to create test folder: " + testFolder, testFolder.mkdir());
+            return testFolder;
+        }
 
-        assertTrue("Unable to create test folder: " + testFolder, testFolder.mkdir());
-        return testFolder;
+        private Settings buildSettings(File testFolder) {
+            return ImmutableSettings.settingsBuilder()
+                    .put("path.data", new File(testFolder, "data").getAbsolutePath())
+                    .put("path.logs", new File(testFolder, "logs").getAbsolutePath())
+                    .build();
+        }
+
     }
 
 }
