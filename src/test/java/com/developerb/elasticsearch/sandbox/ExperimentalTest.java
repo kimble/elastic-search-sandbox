@@ -1,52 +1,36 @@
 package com.developerb.elasticsearch.sandbox;
 
-import com.developerb.elasticsearch.test.ElasticSearchRule;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static org.elasticsearch.action.WriteConsistencyLevel.ONE;
-import static org.elasticsearch.action.support.replication.ReplicationType.SYNC;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.index.query.QueryBuilders.queryString;
 
 /**
  * @author Kim A. Betti
  */
-public class ExperimentalTest {
-
-    @Rule
-    public ElasticSearchRule elasticSearchRule = new ElasticSearchRule();
-
-    private Client client;
-
-    @Before
-    public void setUp() {
-        client = elasticSearchRule.client();
-    }
+public class ExperimentalTest extends AbstractElasticSearchTest {
 
     @Test
     public void experiment() throws Exception {
-        client.prepareIndex("application", "messages")
+        client.prepareIndex("application", "pets")
                 .setSource(jsonBuilder()
                         .startObject()
-                        .field("to", "Nasse Nøff")
-                        .field("from", "Ole Brumm")
-                        .field("message", "Ja takk begge deler!")
+                            .field("name", "Pluto")
+                            .startObject("location")
+                                .field("lat", 70.066446)
+                                .field("lon", 24.982973)
+                            .endObject()
                         .endObject()
                 )
-                .setConsistencyLevel(ONE)
-                .setReplicationType(SYNC)
                 .execute()
                 .actionGet();
 
         elasticSearchRule.refreshIndices("application");
 
-        QueryBuilder qb = queryString("takk");
+        QueryBuilder qb = queryString("pluto");
         SearchResponse result = client.prepareSearch("application")
                 .setQuery(qb)
                 .setExplain(true)

@@ -1,7 +1,9 @@
 package com.developerb.elasticsearch.test;
 
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -28,6 +30,14 @@ public class ElasticSearchRule implements TestRule {
     @Override
     public Statement apply(Statement base, Description description) {
         return new ElasticStatement(base);
+    }
+
+    public ClusterAdminClient cluster() {
+        return admin().cluster();
+    }
+
+    public AdminClient admin() {
+        return client().admin();
     }
 
     public Client client() {
@@ -63,6 +73,7 @@ public class ElasticSearchRule implements TestRule {
                         .local(true)
                         .node();
 
+                waitForGreenStatus();
                 base.evaluate();
             }
             finally {
@@ -73,6 +84,13 @@ public class ElasticSearchRule implements TestRule {
                     deleteDirectory(testFolder);
                 }
             }
+        }
+
+        private void waitForGreenStatus() {
+            cluster().prepareHealth()
+                     .setWaitForGreenStatus()
+                     .execute()
+                     .actionGet();
         }
 
         private File createTemporaryTestFolder() {
@@ -87,6 +105,7 @@ public class ElasticSearchRule implements TestRule {
             return ImmutableSettings.settingsBuilder()
                     .put("path.data", new File(testFolder, "data").getAbsolutePath())
                     .put("path.logs", new File(testFolder, "logs").getAbsolutePath())
+                    .put("path.work", new File(testFolder, "work").getAbsolutePath())
                     .build();
         }
 
