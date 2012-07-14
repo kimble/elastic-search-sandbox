@@ -45,7 +45,7 @@ public class GeoSpatialTest extends AbstractElasticSearchTest {
                 .execute()
                 .actionGet();
 
-        elasticSearchRule.refreshIndices("application");
+        elasticSearch.refreshIndices("application");
 
         SearchResponse searchResponse = client.prepareSearch("application")
                                             .setTypes("pets")

@@ -28,7 +28,7 @@ public class ExperimentalTest extends AbstractElasticSearchTest {
                 .execute()
                 .actionGet();
 
-        elasticSearchRule.refreshIndices("application");
+        elasticSearch.refreshIndices("application");
 
         QueryBuilder qb = queryString("pluto");
         SearchResponse result = client.prepareSearch("application")

@@ -15,19 +15,19 @@ import org.junit.Rule;
 public class AbstractElasticSearchTest {
 
     @Rule
-    public ElasticSearchRule elasticSearchRule = new ElasticSearchRule();
+    public ElasticSearchRule elasticSearch = new ElasticSearchRule();
 
     protected Client client;
     protected IndicesAdminClient indices;
 
     @Before
     public void setUp() {
-        client = elasticSearchRule.client();
+        client = elasticSearch.client();
         indices = client.admin().indices();
     }
 
     protected MappingMetaData findMappingFor(String index, String type) {
-        elasticSearchRule.refreshIndices(index);
+        elasticSearch.refreshIndices(index);
 
         ClusterState cs = client.admin()
                                 .cluster()
